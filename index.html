@@ -1,0 +1,370 @@
+<title>Cuestionarios MNT</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: una columna estrecha tipo app, tarjetas por momento del día / grupo de alimentos, barra de envío fija abajo */
+:root{
+  --bg:#F3F7F5; --surface:#FFFFFF; --soft:#E6EFEB; --line:#CFDDD7;
+  --fg:#1B2B2F; --muted:#5B6D70; --primary:#1F4E5A; --primary-fg:#FFFFFF;
+  --accent:#5E9E6B; --accent-soft:#DCEEDF; --warn:#A8642A; --warn-soft:#F7EBDD;
+  --font-display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --font-body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1A1C; --surface:#162427; --soft:#1D3034; --line:#2C4549;
+  --fg:#E4EEEB; --muted:#9AB0AD; --primary:#7CC3CF; --primary-fg:#0F1A1C;
+  --accent:#86C793; --accent-soft:#1F3A2A; --warn:#E3A86B; --warn-soft:#3A2A1A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1A1C; --surface:#162427; --soft:#1D3034; --line:#2C4549;
+  --fg:#E4EEEB; --muted:#9AB0AD; --primary:#7CC3CF; --primary-fg:#0F1A1C;
+  --accent:#86C793; --accent-soft:#1F3A2A; --warn:#E3A86B; --warn-soft:#3A2A1A; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--primary)}
+.wrap{max-width:680px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 140px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--primary);color:var(--primary-fg)}
+header.top .in{max-width:680px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;display:flex;align-items:center;gap:12px}
+.brand{font-family:var(--font-display);font-weight:800;letter-spacing:.04em;font-size:18px}
+.brand small{display:block;font-family:var(--font-body);font-weight:500;font-size:11px;letter-spacing:.06em;opacity:.8}
+.top .back{margin-left:auto;color:inherit;text-decoration:none;font-size:14px;font-weight:600;opacity:.9;padding:6px 10px;border:1px solid currentColor;border-radius:999px}
+.progress{height:4px;background:color-mix(in srgb,var(--primary-fg) 25%,transparent)}
+.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+
+h1{font-family:var(--font-display);font-weight:800;font-size:clamp(26px,7vw,34px);line-height:1.1;margin:28px 0 8px;text-wrap:balance}
+h2{font-family:var(--font-display);font-weight:700;font-size:20px;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0 0 20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 16px;margin-bottom:14px}
+.card-h{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.tag{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.tip{background:var(--accent-soft);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;font-size:15px}
+.tip ol,.tip ul{margin:6px 0 0;padding-left:20px}
+.tip li{margin:3px 0}
+.measures{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:13.5px;color:var(--muted);margin-top:8px}
+@media (max-width:420px){.measures{grid-template-columns:1fr}}
+
+label.f{display:block;font-size:14px;font-weight:600;margin:12px 0 5px}
+label.f:first-child{margin-top:0}
+input[type=text],input[type=date],input[type=time],textarea,select{width:100%;font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;min-height:46px}
+textarea{min-height:84px;resize:vertical}
+input:focus,textarea:focus,button:focus-visible,.chip input:focus-visible+span,a:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 60%,transparent);outline-offset:1px;border-color:var(--accent)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row2>*{min-width:0}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;inset:0;margin:0}
+.chip span{display:inline-flex;align-items:center;min-height:40px;padding:8px 14px;border:1.5px solid var(--line);border-radius:999px;font-size:15px;font-weight:500;background:var(--surface);cursor:pointer;user-select:none}
+.chip input:checked+span{background:var(--primary);border-color:var(--primary);color:var(--primary-fg)}
+
+.item{border-top:1px dashed var(--line);padding-top:12px;margin-top:12px}
+.item-h{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);font-weight:600}
+.btn{font:inherit;font-weight:600;font-size:15px;border-radius:10px;padding:11px 16px;min-height:44px;cursor:pointer;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.add{border-style:dashed;width:100%;margin-top:12px;color:var(--primary)}
+.btn.link{border:0;background:none;padding:4px 6px;min-height:0;color:var(--muted);font-size:13px;text-decoration:underline}
+.btn.primary{background:var(--primary);color:var(--primary-fg);border-color:var(--primary)}
+.btn.wa{background:#1F8F55;color:#fff;border-color:#1F8F55}
+.nothing{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);margin-left:auto}
+.nothing input{width:20px;height:20px;accent-color:var(--primary)}
+.meal.empty .meal-body{display:none}
+
+.forgot{display:grid;gap:8px}
+.fg-row{border:1.5px solid var(--line);border-radius:10px;padding:10px 12px}
+.fg-row label{display:flex;gap:10px;align-items:flex-start;font-size:15px;cursor:pointer}
+.fg-row input[type=checkbox]{width:22px;height:22px;flex:none;accent-color:var(--primary);margin:0}
+.fg-row input[type=text]{margin-top:8px}
+.fg-row.on{border-color:var(--accent);background:var(--accent-soft)}
+
+/* frecuencia */
+.food{padding:14px 0;border-top:1px solid var(--line)}
+.food:first-of-type{border-top:0;padding-top:4px}
+.food-name{font-weight:600;font-size:15.5px;margin-bottom:8px;display:flex;gap:8px;align-items:baseline}
+.food-name .ok{color:var(--accent);font-size:13px;margin-left:auto;font-weight:700}
+.freq{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.freq .chip span{width:100%;justify-content:center;padding:8px 4px;font-size:13.5px;min-height:42px;text-align:center;border-radius:9px}
+.portion{margin-top:8px}
+.portion input{min-height:42px;padding:9px 12px;font-size:15px}
+.grp-count{margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.grp-count.done{color:var(--accent);font-weight:700}
+
+/* home */
+.choice{display:block;text-decoration:none;color:inherit;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);padding:20px 18px;margin-bottom:12px}
+.choice:hover{border-color:var(--primary)}
+.choice h2{color:var(--primary)}
+.choice p{margin:6px 0 0;color:var(--muted)}
+.choice .meta{font-size:13px;font-weight:600;color:var(--accent);margin-top:10px}
+
+/* envío */
+.send{background:var(--surface);border:2px solid var(--primary);border-radius:var(--r);padding:20px 16px;margin-top:22px}
+.send .actions{display:grid;gap:10px;margin-top:14px}
+.send .actions .btn{width:100%;font-size:16px;min-height:52px}
+.warn{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:14px;font-weight:500;margin-top:12px}
+.note{font-size:13px;color:var(--muted);margin-top:12px}
+.confirm{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px;font-size:14px}
+pre.summary{white-space:pre-wrap;font-family:var(--font-body);font-size:13px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;max-height:260px;overflow:auto;margin-top:12px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:600;font-size:14px;z-index:20}
+.privacy{font-size:12.5px;color:var(--muted);text-align:center;margin-top:28px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{header.top,.send .actions,.btn,.toast{display:none!important}.wrap{padding:0}}
+</style>
+
+<header class="top">
+  <div class="in">
+    <div class="brand">MNT<small>Mide. Nutre. Transforma.</small></div>
+    <a class="back" id="backBtn" href="#inicio" hidden>Inicio</a>
+  </div>
+  <div class="progress"><i id="bar"></i></div>
+</header>
+
+<main class="wrap" id="app"></main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ===== CONFIGURACIÓN: pon aquí tu número de WhatsApp con prefijo, sin espacios ni + (ej. 34600111222) ===== */
+const WHATSAPP = "34722540005";
+const EMAIL = "mariarzstnutricion@gmail.com";   // opcional: tu correo para mostrarlo al paciente
+/* ======================================================================================================== */
+
+const FREQ = ["Nunca o casi nunca","1-3 al mes","1 a la semana","2-4 a la semana","5-6 a la semana","1 al día","2-3 al día","4 o más al día"];
+const FREQ_SHORT = ["Nunca","1-3 /mes","1 /sem","2-4 /sem","5-6 /sem","1 /día","2-3 /día","4+ /día"];
+const GROUPS = {
+ "Lácteos":["Leche entera","Leche semidesnatada o desnatada","Bebida vegetal (soja, avena, almendra...)","Yogur natural, griego o kéfir sin azúcar","Yogur azucarado o de sabores","Queso fresco, burgos o requesón","Queso curado, semicurado o para untar","Postres lácteos (natillas, flan, cuajada...)"],
+ "Huevos, carnes y pescados":["Huevos","Pollo o pavo","Ternera, cerdo o cordero","Carne picada o hamburguesas","Jamón serrano o cocido, fiambre de pavo","Embutidos (chorizo, salchichón, mortadela...)","Salchichas, beicon o patés","Pescado blanco (merluza, bacalao, lenguado...)","Pescado azul (salmón, sardina, caballa...)","Atún u otras conservas de pescado","Marisco, calamar, sepia, mejillones...","Surimi o palitos de cangrejo"],
+ "Verduras, hortalizas y patata":["Ensalada (lechuga, tomate, pepino...)","Verdura de hoja cocida (acelgas, espinacas...)","Brócoli, coliflor, col o coles de Bruselas","Judías verdes, calabacín, berenjena, pimiento","Zanahoria o calabaza","Champiñones y setas","Patata cocida, asada o al horno","Patatas fritas caseras","Gazpacho, cremas o purés de verdura"],
+ "Frutas":["Naranja, mandarina o pomelo","Plátano","Manzana o pera","Fresas, kiwi o frutos rojos","Melón, sandía, melocotón o piña","Uva, cerezas, higos u otras","Zumo de fruta natural","Zumo envasado o néctar","Fruta en almíbar o desecada (pasas, dátiles...)","Aguacate","Aceitunas"],
+ "Legumbres, cereales y pan":["Legumbres (lentejas, garbanzos, alubias...)","Pan blanco","Pan integral","Arroz","Pasta (macarrones, espaguetis...)","Copos de avena o muesli sin azúcar","Cereales de desayuno azucarados","Tortitas de arroz o maíz","Pizza"],
+ "Grasas, frutos secos y semillas":["Aceite de oliva virgen o virgen extra","Aceite de oliva refinado","Aceite de girasol u otras semillas","Mantequilla","Margarina","Frutos secos naturales o tostados","Frutos secos fritos o salados","Semillas (chía, lino, sésamo...)","Mayonesa, alioli u otras salsas"],
+ "Dulces, bollería y snacks":["Galletas tipo María","Galletas de chocolate o rellenas","Bollería (croissant, magdalenas, donuts...)","Pasteles o tartas","Chocolate negro (70 % o más)","Chocolate con leche o bombones","Cacao en polvo azucarado","Helados","Patatas chips y snacks salados","Golosinas","Azúcar añadido (cucharaditas)","Miel o mermelada","Edulcorantes (sacarina, stevia...)"],
+ "Bebidas":["Agua (vasos)","Café","Té o infusiones","Refrescos azucarados","Refrescos zero o light","Bebidas energéticas o isotónicas","Cerveza sin alcohol","Cerveza","Vino o cava","Licores, destilados o combinados"],
+ "Precocinados y otros":["Precocinados (croquetas, empanadillas, nuggets...)","Platos preparados de supermercado","Comida rápida (hamburguesería, kebab...)","Sopas de sobre o pastillas de caldo","Kétchup, tomate frito u otras salsas comerciales","Barritas o batidos de proteína"]
+};
+const FOODS = []; Object.entries(GROUPS).forEach(([g,list])=>list.forEach(n=>FOODS.push({g,n})));
+
+const MEALS = ["Al levantarte, antes del desayuno","Desayuno","Media mañana","Comida","Merienda","Cena","Después de cenar","Picoteo entre horas"];
+const FORGOT = ["Aceite para cocinar o aliñar (tipo y cucharadas)","Pan (tipo y rebanadas)","Azúcar, miel o edulcorante en bebidas o postres","Salsas (mayonesa, kétchup, tomate frito...)","Café, té o infusiones","Refrescos, zumos o bebidas energéticas","Alcohol (cerveza, vino, combinados)","Frutos secos, galletas, chocolate o snacks","Una fruta o algo que cogiste de pasada","Lo que probaste mientras cocinabas","Suplementos, batidos de proteína o vitaminas","Chicles, caramelos o golosinas"];
+const HABITS = [
+ ["aceiteCocinar","Aceite que más usas para cocinar",["Oliva virgen extra","Oliva refinado","Girasol","Otro"],false],
+ ["aceiteAlinar","Aceite que más usas para aliñar",["Oliva virgen extra","Oliva refinado","Girasol","Otro"],false],
+ ["sal","¿Añades sal a la comida en la mesa?",["Nunca","A veces","Casi siempre, sin probar"],false],
+ ["grasa","¿Quitas la grasa visible de la carne?",["Siempre","A veces","Nunca","No como carne"],false],
+ ["tecnicas","¿Cómo sueles cocinar? (puedes marcar varias)",["Plancha","Horno","Hervido","Vapor","Guisado","Frito","Freidora de aire","Microondas"],true],
+ ["cocina","¿Quién cocina normalmente?",["Yo","Pareja o familia","Comedor o tupper de fuera","Compro hecho"],false],
+ ["fuera","Comidas fuera de casa a la semana",["Ninguna","1-2","3-5","6 o más"],false],
+ ["ncomidas","¿Cuántas comidas haces al día?",["2 o menos","3","4","5","6 o más"],false],
+ ["patron","¿Sigues algún tipo de dieta?",["Ninguna","Vegetariana","Vegana","Sin gluten","Otra"],true]
+];
+
+/* ---------- estado ---------- */
+const KEY = {r24:"mnt_r24_v1", ffq:"mnt_ffq_v1"};
+function blankR24(){const meals={};MEALS.forEach(m=>meals[m]={hora:"",lugar:"",nada:false,items:[{a:"",p:"",c:""}]});
+  return {nombre:"",fecha:"",dia:"",habitual:"",motivo:"",tipo:[],meals,olv:FORGOT.map(()=>({on:false,d:""})),agua:"",fueraTxt:"",cocino:"",horas:"",apetito:"",com:""}}
+function blankFFQ(){return {nombre:"",fecha:"",periodo:"Último año",a:FOODS.map(()=>({f:-1,r:""})),otros:"",h:{},noGusta:"",alergias:"",cambio:"",motivo:"",com:""}}
+function load(k,blank){try{const s=JSON.parse(localStorage.getItem(KEY[k]));if(s)return Object.assign(blank(),s)}catch(e){}return blank()}
+let S = {r24:load("r24",blankR24), ffq:load("ffq",blankFFQ)};
+let saveT; function save(k){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY[k],JSON.stringify(S[k]))}catch(e){}},250)}
+
+/* ---------- utilidades ---------- */
+const app=document.getElementById("app");
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(()=>el.hidden=true,2200)}
+function bar(p){document.getElementById("bar").style.width=Math.round(p*100)+"%"}
+function chips(name,opts,val,multi){return `<div class="chips">${opts.map((o,i)=>`<label class="chip"><input type="${multi?"checkbox":"radio"}" name="${name}" id="${name}-${i}" value="${esc(o)}" ${multi?(val||[]).includes(o)?"checked":"":val===o?"checked":""}><span>${esc(o)}</span></label>`).join("")}</div>`}
+function field(id,label,val,type="text",ph=""){return `<label class="f" for="${id}">${label}</label>${type==="textarea"?`<textarea id="${id}" placeholder="${esc(ph)}">${esc(val)}</textarea>`:`<input type="${type}" id="${id}" value="${esc(val)}" placeholder="${esc(ph)}" autocomplete="off">`}`}
+
+/* ---------- inicio ---------- */
+function viewHome(){
+  bar(0);
+  app.innerHTML=`<h1>Cuestionarios de alimentación</h1>
+  <p class="lead">Rellénalos desde el móvil. Tus respuestas se guardan en este dispositivo mientras los completas y solo se envían cuando tú pulses «Enviar».</p>
+  <a class="choice" href="#recordatorio"><span class="tag">Unos 15 minutos</span><h2>Recordatorio de 24 horas</h2><p>Todo lo que comiste y bebiste ayer, comida a comida.</p></a>
+  <a class="choice" href="#frecuencia"><span class="tag">Unos 15-20 minutos</span><h2>Frecuencia de consumo</h2><p>Con qué frecuencia tomas cada tipo de alimento normalmente.</p></a>
+  <p class="privacy">Nada de lo que escribas sale de tu móvil hasta que decidas enviarlo.</p>`;
+}
+
+/* ---------- recordatorio 24h ---------- */
+function viewR24(){
+  const d=S.r24;
+  const meals=MEALS.map((m,mi)=>{const M=d.meals[m];return `<section class="card meal ${M.nada?"empty":""}" data-meal="${mi}">
+    <div class="card-h"><h2>${m}</h2><label class="nothing"><input type="checkbox" data-k="nada" ${M.nada?"checked":""}> No tomé nada</label></div>
+    <div class="meal-body">
+      <div class="row2"><div>${field(`m${mi}-hora`,"Hora aprox.",M.hora,"time")}</div><div>${field(`m${mi}-lugar`,"Dónde",M.lugar,"text","Casa, trabajo...")}</div></div>
+      <div class="items">${M.items.map((it,ii)=>itemHTML(mi,ii,it,M.items.length)).join("")}</div>
+      <button class="btn add" type="button" data-add="${mi}">+ Añadir otro alimento o bebida</button>
+    </div></section>`}).join("");
+  app.innerHTML=`<h1>Recordatorio de 24 horas</h1>
+  <p class="lead">Anota todo lo que comiste y bebiste <strong>ayer</strong>, desde que te levantaste hasta que te acostaste.</p>
+  <div class="tip"><strong>Cómo hacerlo bien</strong><ol>
+    <li>Piensa en el día de ayer de principio a fin. Apunta todo, aunque fuera poquito.</li>
+    <li>Pon un alimento o bebida en cada recuadro. Un bocadillo cuenta como uno: escribe dentro qué llevaba.</li>
+    <li>Indica cómo estaba hecho (plancha, frito, guisado...) y la marca si era envasado.</li>
+    <li>Sé sincero/a: no hay respuestas buenas ni malas.</li></ol>
+    <div class="measures"><span>Cucharada sopera de aceite ≈ 10 ml</span><span>Cucharadita de azúcar ≈ 5 g</span><span>Vaso ≈ 200-250 ml</span><span>Taza de desayuno ≈ 250 ml</span><span>Rebanada de pan de molde ≈ 25-30 g</span><span>Puñado de frutos secos ≈ 25-30 g</span><span>Plato hondo de lentejas o pasta ≈ 250-300 g</span><span>Fruta mediana ≈ 150-200 g</span></div></div>
+  <section class="card"><div class="card-h"><span class="tag">Paso 1</span><h2>Tus datos</h2></div>
+    ${field("nombre","Nombre y apellidos",d.nombre)}
+    <div class="row2"><div>${field("dia","Fecha del día que anotas",d.dia,"date")}</div><div>${field("fecha","Fecha de hoy",d.fecha,"date")}</div></div>
+    <label class="f">¿Fue un día normal para ti?</label>${chips("habitual",["Sí","No"],d.habitual)}
+    <div id="motivoWrap" ${d.habitual==="No"?"":"hidden"}>${field("motivo","¿Por qué no fue un día normal?",d.motivo,"text","Celebración, viaje, estaba enfermo/a...")}</div>
+    <label class="f">Ese día...</label>${chips("tipo",["Era laborable","Era fin de semana o festivo","Entrené","No entrené"],d.tipo,true)}
+  </section>
+  <p class="tag" style="margin:22px 0 10px">Paso 2 · Lo que comiste y bebiste</p>
+  <div class="tip" style="background:var(--soft)"><strong>Ejemplo</strong> · Desayuno, 08:00, casa<br>Tostadas de pan integral · con aceite de oliva y tomate rallado · 2 rebanadas + 1 cucharada de aceite</div>
+  ${meals}
+  <section class="card"><div class="card-h"><span class="tag">Paso 3</span><h2>¿Se te ha olvidado algo?</h2></div>
+    <p class="lead" style="margin:0 0 10px">Marca lo que tomaste ayer y aún no hayas anotado, y escribe qué y cuánto.</p>
+    <div class="forgot">${FORGOT.map((t,i)=>`<div class="fg-row ${d.olv[i].on?"on":""}" data-olv="${i}"><label><input type="checkbox" id="olv-${i}" ${d.olv[i].on?"checked":""}><span>${t}</span></label><input type="text" id="olvd-${i}" value="${esc(d.olv[i].d)}" placeholder="Qué y cuánto" ${d.olv[i].on?"":"hidden"}></div>`).join("")}</div>
+  </section>
+  <section class="card"><div class="card-h"><span class="tag">Paso 4</span><h2>Agua y cómo fue el día</h2></div>
+    ${field("agua","¿Cuánta agua bebiste? (vasos o litros)",d.agua)}
+    ${field("fueraTxt","¿Comiste fuera de casa? ¿Dónde?",d.fueraTxt)}
+    <div class="row2"><div>${field("cocino","¿Quién cocinó?",d.cocino)}</div><div>${field("horas","Hora de levantarte / acostarte",d.horas,"text","7:30 / 23:30")}</div></div>
+    <label class="f">Ayer tuviste...</label>${chips("apetito",["Menos hambre de lo normal","Hambre normal","Más hambre de lo normal"],d.apetito)}
+    ${field("com","Comentarios (cómo te sentiste, ansiedad por comer, digestiones...)",d.com,"textarea")}
+  </section>
+  ${sendBlock("r24")}`;
+  bindR24(); updR24();
+}
+function itemHTML(mi,ii,it,n){return `<div class="item" data-item="${ii}"><div class="item-h"><span>Alimento ${ii+1}</span>${n>1?`<button class="btn link" type="button" data-del="${mi}-${ii}">Quitar</button>`:""}</div>
+  ${field(`m${mi}-i${ii}-a`,"¿Qué tomaste?",it.a,"text","Ej: café con leche")}
+  ${field(`m${mi}-i${ii}-p`,"Cómo estaba hecho, ingredientes, marca",it.p,"text","Ej: leche semidesnatada, 1 cucharadita de azúcar")}
+  ${field(`m${mi}-i${ii}-c`,"Cantidad",it.c,"text","Ej: 1 taza")}</div>`}
+function bindR24(){
+  const d=S.r24;
+  app.oninput=app.onchange=e=>{
+    const t=e.target, id=t.id||"";
+    let mm;
+    if(["nombre","fecha","dia","motivo","agua","fueraTxt","cocino","horas","com"].includes(id)) d[id]=t.value;
+    else if(mm=id.match(/^m(\d+)-(hora|lugar)$/)) d.meals[MEALS[mm[1]]][mm[2]]=t.value;
+    else if(mm=id.match(/^m(\d+)-i(\d+)-([apc])$/)) d.meals[MEALS[mm[1]]].items[mm[2]][mm[3]]=t.value;
+    else if(mm=id.match(/^olv-(\d+)$/)){d.olv[mm[1]].on=t.checked;const row=t.closest(".fg-row");row.classList.toggle("on",t.checked);row.querySelector("input[type=text]").hidden=!t.checked}
+    else if(mm=id.match(/^olvd-(\d+)$/)) d.olv[mm[1]].d=t.value;
+    else if(t.name==="habitual"){d.habitual=t.value;document.getElementById("motivoWrap").hidden=t.value!=="No"}
+    else if(t.name==="apetito") d.apetito=t.value;
+    else if(t.name==="tipo") d.tipo=[...app.querySelectorAll('input[name=tipo]:checked')].map(x=>x.value);
+    else if(t.dataset.k==="nada"){const sec=t.closest(".meal");d.meals[MEALS[sec.dataset.meal]].nada=t.checked;sec.classList.toggle("empty",t.checked)}
+    save("r24"); updR24();
+  };
+  app.onclick=e=>{
+    const a=e.target.closest("[data-add]"), del=e.target.closest("[data-del]");
+    if(a){const mi=+a.dataset.add,M=d.meals[MEALS[mi]];M.items.push({a:"",p:"",c:""});rerenderItems(mi);
+      const f=document.getElementById(`m${mi}-i${M.items.length-1}-a`);f&&f.focus();save("r24")}
+    if(del){const [mi,ii]=del.dataset.del.split("-").map(Number);d.meals[MEALS[mi]].items.splice(ii,1);rerenderItems(mi);save("r24");updR24()}
+    sendClicks(e,"r24");
+  };
+}
+function rerenderItems(mi){const M=S.r24.meals[MEALS[mi]];app.querySelector(`[data-meal="${mi}"] .items`).innerHTML=M.items.map((it,ii)=>itemHTML(mi,ii,it,M.items.length)).join("")}
+function updR24(){const d=S.r24;let done=0;MEALS.forEach(m=>{const M=d.meals[m];if(M.nada||M.items.some(i=>i.a.trim()))done++});
+  bar((done+(d.nombre?1:0))/(MEALS.length+1));
+  const w=document.getElementById("sendWarn");if(!w)return;const miss=[];if(!d.nombre.trim())miss.push("tu nombre");
+  const empty=MEALS.filter(m=>!d.meals[m].nada&&!d.meals[m].items.some(i=>i.a.trim()));
+  if(empty.length)miss.push(`${empty.length} momento${empty.length>1?"s":""} del día sin rellenar (si no tomaste nada, marca «No tomé nada»)`);
+  w.hidden=!miss.length;w.textContent="Te falta: "+miss.join(" y ")+".";refreshSummary("r24")}
+function summaryR24(){const d=S.r24,L=[];
+  L.push("RECORDATORIO DE 24 HORAS · MNT");L.push(`Nombre: ${d.nombre||"-"}`);L.push(`Día anotado: ${fmtDate(d.dia)} · Rellenado: ${fmtDate(d.fecha)}`);
+  L.push(`¿Día normal?: ${d.habitual||"-"}${d.habitual==="No"&&d.motivo?" ("+d.motivo+")":""}`);if(d.tipo.length)L.push(`Ese día: ${d.tipo.join(", ")}`);
+  MEALS.forEach(m=>{const M=d.meals[m];L.push("");const head=[M.hora,M.lugar].filter(Boolean).join(" · ");L.push(`▸ ${m.toUpperCase()}${head?" ("+head+")":""}`);
+    if(M.nada){L.push("  No tomó nada");return}const it=M.items.filter(i=>i.a.trim()||i.p.trim()||i.c.trim());if(!it.length){L.push("  (sin rellenar)");return}
+    it.forEach(i=>L.push("  - "+[i.a,i.p,i.c].map(x=>x.trim()).filter(Boolean).join(" | ")))});
+  const ol=d.olv.map((o,i)=>o.on?`  - ${FORGOT[i]}: ${o.d||"sí"}`:null).filter(Boolean);
+  if(ol.length){L.push("");L.push("▸ AÑADIDO AL REPASAR");L.push(...ol)}
+  L.push("");L.push("▸ CONTEXTO");L.push(`  Agua: ${d.agua||"-"}`);L.push(`  Fuera de casa: ${d.fueraTxt||"-"}`);L.push(`  Cocinó: ${d.cocino||"-"}`);L.push(`  Levantarse/acostarse: ${d.horas||"-"}`);L.push(`  Hambre: ${d.apetito||"-"}`);
+  if(d.com.trim())L.push(`  Comentarios: ${d.com.trim()}`);return L.join("\n")}
+
+/* ---------- frecuencia ---------- */
+function viewFFQ(){
+  const d=S.ffq;let idx=0;
+  const groups=Object.entries(GROUPS).map(([g,list],gi)=>`<section class="card" data-grp="${gi}"><div class="card-h"><h2>${g}</h2><span class="grp-count" id="gc-${gi}"></span></div>
+    ${list.map(n=>{const i=idx++,A=d.a[i];return `<div class="food" data-food="${i}"><div class="food-name">${esc(n)}<span class="ok" id="ok-${i}" ${A.f>=0?"":"hidden"}>✓</span></div>
+      <div class="freq" role="radiogroup" aria-label="${esc(n)}">${FREQ_SHORT.map((s,k)=>`<label class="chip"><input type="radio" name="q${i}" id="q${i}-${k}" value="${k}" ${A.f===k?"checked":""} aria-label="${FREQ[k]}"><span>${s}</span></label>`).join("")}</div>
+      <div class="portion" id="pw-${i}" ${A.f>0?"":"hidden"}><input type="text" id="r-${i}" value="${esc(A.r)}" placeholder="¿Cuánto cada vez? Ej: 1 vaso, 2 rebanadas" aria-label="Ración habitual de ${esc(n)}"></div></div>`}).join("")}
+  </section>`).join("");
+  app.innerHTML=`<h1>Frecuencia de consumo</h1>
+  <p class="lead">Marca con qué frecuencia tomas cada alimento <strong>de media</strong>. Hay ${FOODS.length} alimentos: ve rápido, la primera impresión suele ser la buena.</p>
+  <div class="tip"><strong>Cómo hacerlo bien</strong><ul>
+    <li>Toca una sola opción por alimento. <em>/sem</em> = a la semana, <em>/día</em> = al día.</li>
+    <li>Si lo tomas, escribe cuánto tomas cada vez (1 vaso, 1 plato, 1 puñado, 1 yogur...).</li>
+    <li>Si algo solo lo tomas en temporada, piensa en la media del año.</li>
+    <li>Si no lo tomas nunca, marca «Nunca». Intenta no dejar ninguno sin marcar.</li></ul></div>
+  <section class="card"><div class="card-h"><span class="tag">Paso 1</span><h2>Tus datos</h2></div>
+    ${field("nombre","Nombre y apellidos",d.nombre)}${field("fecha","Fecha",d.fecha,"date")}
+    <label class="f">Piensa en tu alimentación durante...</label>${chips("periodo",["Último año","Últimos 3 meses","Último mes"],d.periodo)}
+  </section>
+  <p class="tag" style="margin:22px 0 10px">Paso 2 · ¿Con qué frecuencia lo tomas?</p>
+  ${groups}
+  <section class="card"><div class="card-h"><span class="tag">Paso 3</span><h2>Tus hábitos</h2></div>
+    ${field("otros","¿Tomas a menudo algo que no aparezca en la lista? Qué, cuántas veces y cuánto",d.otros,"textarea")}
+    ${HABITS.map(([k,l,o,multi])=>`<label class="f">${l}</label>${chips("h_"+k,o,d.h[k]||(multi?[]:""),multi)}`).join("")}
+    ${field("noGusta","Alimentos que no te gustan o evitas",d.noGusta,"textarea")}
+    ${field("alergias","Alergias o intolerancias diagnosticadas por un médico",d.alergias)}
+    <label class="f">¿Has cambiado tu forma de comer en el último año?</label>${chips("cambio",["No","Sí"],d.cambio)}
+    <div id="motivoWrap" ${d.cambio==="Sí"?"":"hidden"}>${field("motivo","¿Qué cambiaste y por qué?",d.motivo)}</div>
+    ${field("com","¿Algo más que quieras contarme sobre tu alimentación?",d.com,"textarea")}
+  </section>
+  ${sendBlock("ffq")}`;
+  bindFFQ(); updFFQ();
+}
+function bindFFQ(){
+  const d=S.ffq;
+  app.oninput=app.onchange=e=>{
+    const t=e.target,id=t.id||"";let mm;
+    if(["nombre","fecha","otros","noGusta","alergias","motivo","com"].includes(id)) d[id]=t.value;
+    else if(t.name==="periodo") d.periodo=t.value;
+    else if(t.name==="cambio"){d.cambio=t.value;document.getElementById("motivoWrap").hidden=t.value!=="Sí"}
+    else if(mm=t.name&&t.name.match(/^q(\d+)$/)){const i=+mm[1];d.a[i].f=+t.value;document.getElementById("ok-"+i).hidden=false;document.getElementById("pw-"+i).hidden=!(+t.value>0)}
+    else if(mm=id.match(/^r-(\d+)$/)) d.a[mm[1]].r=t.value;
+    else if(mm=t.name&&t.name.match(/^h_(\w+)$/)){const k=mm[1],multi=t.type==="checkbox";d.h[k]=multi?[...app.querySelectorAll(`input[name=h_${k}]:checked`)].map(x=>x.value):t.value}
+    save("ffq"); updFFQ();
+  };
+  app.onclick=e=>sendClicks(e,"ffq");
+}
+function updFFQ(){const d=S.ffq;const done=d.a.filter(x=>x.f>=0).length;bar(done/FOODS.length);
+  let idx=0;Object.values(GROUPS).forEach((list,gi)=>{let c=0;list.forEach(()=>{if(d.a[idx++].f>=0)c++});const el=document.getElementById("gc-"+gi);if(el){el.textContent=`${c}/${list.length}`;el.classList.toggle("done",c===list.length)}});
+  const w=document.getElementById("sendWarn");if(!w)return;const miss=[];if(!d.nombre.trim())miss.push("tu nombre");
+  const left=FOODS.length-done;if(left)miss.push(`${left} alimento${left>1?"s":""} sin marcar`);
+  w.hidden=!miss.length;w.textContent="Te falta: "+miss.join(" y ")+". Puedes enviarlo igualmente.";refreshSummary("ffq")}
+function summaryFFQ(){const d=S.ffq,L=[];
+  L.push("FRECUENCIA DE CONSUMO · MNT");L.push(`Nombre: ${d.nombre||"-"}`);L.push(`Fecha: ${fmtDate(d.fecha)} · Periodo: ${d.periodo}`);
+  let idx=0;Object.entries(GROUPS).forEach(([g,list])=>{L.push("");L.push(`▸ ${g.toUpperCase()}`);const nunca=[],sin=[];
+    list.forEach(n=>{const A=d.a[idx++];if(A.f===0)nunca.push(n.replace(/ \(.*\)$/,""));else if(A.f<0)sin.push(n.replace(/ \(.*\)$/,""));else L.push(`  - ${n}: ${FREQ[A.f]}${A.r.trim()?" · "+A.r.trim():""}`)});
+    if(nunca.length)L.push(`  Nunca o casi nunca: ${nunca.join(", ")}`);if(sin.length)L.push(`  Sin responder: ${sin.join(", ")}`)});
+  L.push("");L.push("▸ HÁBITOS");if(d.otros.trim())L.push(`  Otros alimentos: ${d.otros.trim()}`);
+  HABITS.forEach(([k,l])=>{const v=d.h[k];const s=Array.isArray(v)?v.join(", "):v;L.push(`  ${l.replace(/ \(.*\)$/,"").replace(/[¿?]/g,"")}: ${s||"-"}`)});
+  L.push(`  No le gusta / evita: ${d.noGusta.trim()||"-"}`);L.push(`  Alergias o intolerancias: ${d.alergias.trim()||"-"}`);
+  L.push(`  Cambios en el último año: ${d.cambio||"-"}${d.cambio==="Sí"&&d.motivo?" ("+d.motivo+")":""}`);if(d.com.trim())L.push(`  Comentarios: ${d.com.trim()}`);
+  return L.join("\n")}
+
+/* ---------- envío ---------- */
+function fmtDate(v){if(!v)return"-";const [y,m,dd]=v.split("-");return `${dd}/${m}/${y}`}
+const canShare=()=>!!navigator.share && window.self===window.top;
+function sendBlock(k){return `<section class="send" id="send"><h2>Enviar mis respuestas</h2>
+  <p class="lead" style="margin:6px 0 0">Cuando termines, pulsa el botón verde: se abrirá WhatsApp con tus respuestas ya escritas. Solo tienes que darle a enviar.</p>
+  <div class="warn" id="sendWarn" hidden></div>
+  <div class="actions">
+    <a class="btn wa" id="waBtn" href="#" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+    ${canShare()?`<button class="btn primary" type="button" data-act="share">Enviar por otra app (email, Telegram...)</button>`:""}
+    <button class="btn" type="button" data-act="copy">Copiar mis respuestas</button>
+  </div>
+  ${EMAIL?`<p class="note">¿Prefieres email? Copia tus respuestas y pégalas en un correo a <strong style="user-select:all">${esc(EMAIL)}</strong></p>`:""}
+  <details style="margin-top:12px"><summary class="note" style="cursor:pointer">Ver lo que se va a enviar</summary><pre class="summary" id="summary"></pre></details>
+  <div class="confirm" id="resetArea"><button class="btn link" type="button" data-act="reset">Borrar todo y empezar de nuevo</button></div>
+</section>
+<p class="privacy">Tus respuestas solo se guardan en este móvil mientras rellenas el cuestionario.</p>`}
+function summaryOf(k){return k==="r24"?summaryR24():summaryFFQ()}
+function refreshSummary(k){const t=summaryOf(k);const s=document.getElementById("summary");if(s)s.textContent=t;
+  const wa=document.getElementById("waBtn");if(wa)wa.href=`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(t)}`}
+function sendClicks(e,k){const b=e.target.closest("[data-act]");if(!b)return;const act=b.dataset.act;const text=summaryOf(k);
+  if(act==="copy"){const ok=()=>toast("Respuestas copiadas");try{navigator.clipboard.writeText(text).then(ok,()=>fallbackCopy(text))}catch(_){fallbackCopy(text)}}
+  if(act==="share"){navigator.share({title:k==="r24"?"Recordatorio 24 h":"Frecuencia de consumo",text}).catch(()=>{})}
+  if(act==="reset"){document.getElementById("resetArea").innerHTML=`<span>¿Seguro? Se borrará todo lo que has escrito.</span><button class="btn" type="button" data-act="resetYes">Sí, borrar</button><button class="btn link" type="button" data-act="resetNo">Cancelar</button>`}
+  if(act==="resetNo"){document.getElementById("resetArea").innerHTML=`<button class="btn link" type="button" data-act="reset">Borrar todo y empezar de nuevo</button>`}
+  if(act==="resetYes"){S[k]=k==="r24"?blankR24():blankFFQ();try{localStorage.removeItem(KEY[k])}catch(_){ }route();scrollTo(0,0);toast("Cuestionario vacío")}}
+function fallbackCopy(text){const d=document.querySelector("details");if(d)d.open=true;const s=document.getElementById("summary");const r=document.createRange();r.selectNodeContents(s);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);toast("Texto seleccionado: mantén pulsado y copia")}
+
+/* ---------- rutas ---------- */
+function route(){const h=location.hash.replace("#","");document.getElementById("backBtn").hidden=!(h==="recordatorio"||h==="frecuencia");
+  app.oninput=app.onchange=app.onclick=null;
+  if(h==="recordatorio"){document.title="Recordatorio 24 h · MNT";viewR24()}else if(h==="frecuencia"){document.title="Frecuencia de consumo · MNT";viewFFQ()}else{document.title="Cuestionarios MNT";viewHome()}}
+addEventListener("hashchange",()=>{route();scrollTo(0,0)});
+route();
+</script>
